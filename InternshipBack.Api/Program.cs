@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using InternshipBack.Core.Commands;
 using InternshipBack.Infrastructure;
+using InternshipBack.Infrastructure.Seed;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,5 +34,12 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseHttpsRedirection();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<InternshipBackDbContext>();
+    await DatabaseSeeder.SeedAsync(dbContext);
+}
+
 app.Run();
 

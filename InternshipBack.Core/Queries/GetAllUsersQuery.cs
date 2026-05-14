@@ -1,6 +1,6 @@
-﻿using InternshipBack.Domain.Entities;
+﻿using InternshipBack.Domain.Dtos;
 using MediatR;
 
 namespace InternshipBack.Core.Queries;
 
-public class GetAllUsersQuery : IRequest<List<User>>;
+public class GetAllUsersQuery : IRequest<List<UserDto>>;

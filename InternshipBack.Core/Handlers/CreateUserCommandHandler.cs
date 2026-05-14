@@ -11,8 +11,8 @@ public class CreateUserCommandHandler(InternshipBackDbContext context) : IReques
     {
         var user = new User
         {
-            Name = request.Name,
-            Surname = request.Surname,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
             Identifier = "1"
         };
       
