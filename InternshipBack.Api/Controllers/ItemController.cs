@@ -21,5 +21,12 @@ public class ItemController : BaseController
         return Ok(result);
     }
     
+    [HttpPost("Delete")]
+    public async Task<IActionResult> Delete(DeleteItemCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return Ok(result);
+    }
+    
     
 }
