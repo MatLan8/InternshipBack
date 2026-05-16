@@ -1,14 +1,17 @@
-﻿using InternshipBack.Core.Queries;
+﻿using InternshipBack.Core.Pdf.Templates;
+using InternshipBack.Core.Queries;
 using InternshipBack.Domain.Dtos;
+using InternshipBack.Domain.Types;
 using InternshipBack.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace InternshipBack.Core.Handlers;
 
-public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) : IRequestHandler<GetAllItemsFilteredQuery, List<ItemDto>>
+
+public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : IRequestHandler<ExportItemsToPdfQuery, byte[]>
 {
-    public async Task<List<ItemDto>> Handle(GetAllItemsFilteredQuery request, CancellationToken cancellationToken)
+    public async Task<byte[]> Handle(ExportItemsToPdfQuery request, CancellationToken cancellationToken)
     {
         var query = dbContext.Items
             .Include(i => i.AssignedUser)
@@ -35,7 +38,7 @@ public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) 
                 request.UserIds.Contains(i.AssignedUserId));
         }
         
-        return await query
+        var items = await query
             .Select(i => new ItemDto
             {
                 Id = i.Id,
@@ -47,5 +50,12 @@ public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) 
                 UserIdentifier = i.AssignedUser.Identifier,
             })
             .ToListAsync(cancellationToken);
+
+        return request.TemplateType switch
+        {
+            ExportTemplateType.Simple => SimpleTemplate.Generate(items),
+            ExportTemplateType.Detailed => DetailedTemplate.Generate(items),
+            _ => throw new Exception("Invalid template")
+        };
     }
 }

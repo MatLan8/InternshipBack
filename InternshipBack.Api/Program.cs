@@ -2,9 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using InternshipBack.Core.Commands;
 using InternshipBack.Infrastructure;
 using InternshipBack.Infrastructure.Seed;
+using QuestPDF.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateUserCommand).Assembly));
 builder.Services.AddControllers();

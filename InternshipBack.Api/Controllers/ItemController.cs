@@ -21,12 +21,25 @@ public class ItemController : BaseController
         return Ok(result);
     }
     
-    [HttpPost("Delete")]
-    public async Task<IActionResult> Delete(DeleteItemCommand command)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await Mediator.Send(command);
-        return Ok(result);
+        var result = await Mediator.Send(new DeleteItemCommand
+        {
+            Id = id
+        });
+
+        if (!result)
+            return NotFound();
+
+        return Ok();
     }
     
-    
+    [HttpPost("ExportPdf")]
+    public async Task<IActionResult> ExportPdf([FromBody]ExportItemsToPdfQuery  query)
+    {
+        var pdf = await Mediator.Send(query);
+        return File(pdf, "application/pdf", "items-export.pdf");
+    }
+        
 }

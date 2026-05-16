@@ -86,11 +86,19 @@ public static class DatabaseSeeder
             new() { ItemType = ItemsEnum.SimCard,Identifier = "ITM-0024", PurchaseDate = DateTime.UtcNow.AddDays(-11), AssignedUserId = u6, Comment = "Client onboarding SIM card activation" },
 
             // USER 7 (Domantas)
+            new() { ItemType = ItemsEnum.Laptop, Identifier = "ITM-0025", PurchaseDate = DateTime.UtcNow.AddDays(-60), AssignedUserId = u7, Comment = "Assigned for development - full stack setupaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaa aaaaaaaa aaaaaaaaa" },
+            new() { ItemType = ItemsEnum.Phone,  Identifier = "ITM-0026", PurchaseDate = DateTime.UtcNow.AddDays(-55), AssignedUserId = u7, Comment = "Assigned for testing - Android QA device" },
+            new() { ItemType = ItemsEnum.Tablet, Identifier = "ITM-0027", PurchaseDate = DateTime.UtcNow.AddDays(-33), AssignedUserId = u7, Comment = "Temporary device issued for UI testing" },
+            new() { ItemType = ItemsEnum.SimCard,Identifier = "ITM-0028", PurchaseDate = DateTime.UtcNow.AddDays(-13), AssignedUserId = u7, Comment = "Client onboarding SIM card activation" },
             new() { ItemType = ItemsEnum.Laptop, Identifier = "ITM-0025", PurchaseDate = DateTime.UtcNow.AddDays(-60), AssignedUserId = u7, Comment = "Assigned for development - full stack setup" },
             new() { ItemType = ItemsEnum.Phone,  Identifier = "ITM-0026", PurchaseDate = DateTime.UtcNow.AddDays(-55), AssignedUserId = u7, Comment = "Assigned for testing - Android QA device" },
             new() { ItemType = ItemsEnum.Tablet, Identifier = "ITM-0027", PurchaseDate = DateTime.UtcNow.AddDays(-33), AssignedUserId = u7, Comment = "Temporary device issued for UI testing" },
             new() { ItemType = ItemsEnum.SimCard,Identifier = "ITM-0028", PurchaseDate = DateTime.UtcNow.AddDays(-13), AssignedUserId = u7, Comment = "Client onboarding SIM card activation" },
-
+            new() { ItemType = ItemsEnum.Laptop, Identifier = "ITM-0025", PurchaseDate = DateTime.UtcNow.AddDays(-60), AssignedUserId = u7, Comment = "Assigned for development - full stack setup" },
+            new() { ItemType = ItemsEnum.Phone,  Identifier = "ITM-0026", PurchaseDate = DateTime.UtcNow.AddDays(-55), AssignedUserId = u7, Comment = "Assigned for testing - Android QA device" },
+            new() { ItemType = ItemsEnum.Tablet, Identifier = "ITM-0027", PurchaseDate = DateTime.UtcNow.AddDays(-33), AssignedUserId = u7, Comment = "Temporary device issued for UI testing" },
+            new() { ItemType = ItemsEnum.SimCard,Identifier = "ITM-0028", PurchaseDate = DateTime.UtcNow.AddDays(-13), AssignedUserId = u7, Comment = "Client onboarding SIM card activation" },
+            
             // USER 8 (Karolina)
             new() { ItemType = ItemsEnum.Phone,  Identifier = "ITM-0029", PurchaseDate = DateTime.UtcNow.AddDays(-70), AssignedUserId = u8, Comment = "Assigned for testing - mobile regression testing" },
             new() { ItemType = ItemsEnum.Laptop, Identifier = "ITM-0030", PurchaseDate = DateTime.UtcNow.AddDays(-65), AssignedUserId = u8, Comment = "Assigned for development - frontend system" },
