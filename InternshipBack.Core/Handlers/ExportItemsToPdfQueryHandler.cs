@@ -1,9 +1,11 @@
 ﻿using InternshipBack.Core.Pdf.Templates;
 using InternshipBack.Core.Queries;
+using InternshipBack.Core.Services;
 using InternshipBack.Domain.Dtos;
 using InternshipBack.Domain.Types;
 using InternshipBack.Infrastructure;
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace InternshipBack.Core.Handlers;
@@ -13,30 +15,16 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
 {
     public async Task<byte[]> Handle(ExportItemsToPdfQuery request, CancellationToken cancellationToken)
     {
+        var filters = new ItemFilterDto
+        {
+            ItemTypes = request.ItemTypes,
+            Comment = request.Comment,
+            UserIds = request.UserIds,
+        };
+
         var query = dbContext.Items
             .Include(i => i.AssignedUser)
-            .Where(i => !i.IsDeleted);
-        
-        if (request.ItemTypes is not null && request.ItemTypes.Count != 0)
-        {
-            query = query.Where(i =>
-                request.ItemTypes.Contains(i.ItemType));
-        }
-        
-        if (!string.IsNullOrWhiteSpace(request.Comment))
-        {
-            var commentFilter = request.Comment.ToLower();
-
-            query = query.Where(i =>
-                i.Comment != null &&
-                i.Comment.ToLower().Contains(commentFilter));
-        }
-        
-        if (request.UserIds is not null && request.UserIds.Count != 0)
-        {
-            query = query.Where(i =>
-                request.UserIds.Contains(i.AssignedUserId));
-        }
+            .ApplyFilters(filters);
         
         var items = await query
             .Select(i => new ItemDto
@@ -50,11 +38,23 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
                 UserIdentifier = i.AssignedUser.Identifier,
             })
             .ToListAsync(cancellationToken);
+        
+        var selectedUsers = await dbContext.Users
+            .Where(u => request.UserIds != null && request.UserIds.Contains(u.Id))
+            .Select(u => new UserDto
+            {
+                Id = u.Id,
+                Identifier = u.Identifier,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                
+            })
+            .ToListAsync(cancellationToken);
 
         return request.TemplateType switch
         {
-            ExportTemplateType.Simple => SimpleTemplate.Generate(items),
-            ExportTemplateType.Detailed => DetailedTemplate.Generate(items),
+            ExportTemplateType.Simple => SimpleTemplate.Generate(items, filters, selectedUsers),
+            ExportTemplateType.Detailed => DetailedTemplate.Generate(items, filters, selectedUsers),
             _ => throw new Exception("Invalid template")
         };
     }

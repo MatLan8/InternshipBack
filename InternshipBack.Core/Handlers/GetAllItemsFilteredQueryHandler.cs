@@ -1,4 +1,5 @@
 ﻿using InternshipBack.Core.Queries;
+using InternshipBack.Core.Services;
 using InternshipBack.Domain.Dtos;
 using InternshipBack.Infrastructure;
 using MediatR;
@@ -10,30 +11,15 @@ public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) 
 {
     public async Task<List<ItemDto>> Handle(GetAllItemsFilteredQuery request, CancellationToken cancellationToken)
     {
+        var filters = new ItemFilterDto
+        {
+            ItemTypes = request.ItemTypes,
+            Comment = request.Comment,
+            UserIds = request.UserIds,
+        };
         var query = dbContext.Items
             .Include(i => i.AssignedUser)
-            .Where(i => !i.IsDeleted);
-        
-        if (request.ItemTypes is not null && request.ItemTypes.Count != 0)
-        {
-            query = query.Where(i =>
-                request.ItemTypes.Contains(i.ItemType));
-        }
-        
-        if (!string.IsNullOrWhiteSpace(request.Comment))
-        {
-            var commentFilter = request.Comment.ToLower();
-
-            query = query.Where(i =>
-                i.Comment != null &&
-                i.Comment.ToLower().Contains(commentFilter));
-        }
-        
-        if (request.UserIds is not null && request.UserIds.Count != 0)
-        {
-            query = query.Where(i =>
-                request.UserIds.Contains(i.AssignedUserId));
-        }
+            .ApplyFilters(filters);
         
         return await query
             .Select(i => new ItemDto

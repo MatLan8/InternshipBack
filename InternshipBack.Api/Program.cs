@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using InternshipBack.Core.Commands;
+using InternshipBack.Core.Queries;
 using InternshipBack.Infrastructure;
 using InternshipBack.Infrastructure.Seed;
 using QuestPDF.Infrastructure;
@@ -8,7 +8,7 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateUserCommand).Assembly));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllUsersQuery).Assembly));
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<InternshipBackDbContext>(options =>

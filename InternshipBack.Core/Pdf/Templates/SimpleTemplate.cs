@@ -7,19 +7,24 @@ namespace InternshipBack.Core.Pdf.Templates;
 public class SimpleTemplate
 {
     // ── Palette — light, minimal, accent-driven ───────────────────────────
-    const string AccentBlue    = "#2563eb";   // left stripe & header text
-    const string HeaderBg      = "#eff6ff";   // very light blue tint on col headers
-    const string RowEven       = "#ffffff";
-    const string RowOdd        = "#f8fafc";
-    const string CommentBg     = "#f1f5f9";   // cool slate for comment rows
-    const string BorderRow     = "#e2e8f0";   // subtle row dividers
-    const string BorderOuter   = "#cbd5e1";   // slightly stronger outer edge
-    const string MutedText     = "#94a3b8";
-    const string CommentText   = "#475569";
-    const string AccentText    = "#1d4ed8";
+    const string AccentBlue  = "#2563eb";
+    const string HeaderBg    = "#eff6ff";
+    const string RowEven     = "#ffffff";
+    const string RowOdd      = "#f8fafc";
+    const string CommentBg   = "#f1f5f9";
+    const string BorderRow   = "#e2e8f0";
+    const string BorderOuter = "#cbd5e1";
+    const string MutedText   = "#94a3b8";
+    const string CommentText = "#475569";
+    const string AccentText  = "#1d4ed8";
 
-    public static byte[] Generate(List<ItemDto> items)
+    public static byte[] Generate(List<ItemDto> items, ItemFilterDto filters, List<UserDto> selectedUsers)
     {
+        var hasFilters =
+            (filters.ItemTypes is { Count: > 0 }) ||
+            !string.IsNullOrWhiteSpace(filters.Comment) ||
+            (filters.UserIds is { Count: > 0 });
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -46,135 +51,281 @@ public class SimpleTemplate
                         .Container();
                 });
 
-                // ── Table ─────────────────────────────────────────────────
-                page.Content().PaddingTop(20)
-                    .Border(1f).BorderColor(BorderOuter)
-                    .Table(table =>
+                page.Content().PaddingTop(20).Column(pageCol =>
+                {
+                    // ── Filters block ─────────────────────────────────────
+                    if (hasFilters)
                     {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.ConstantColumn(4);    // accent stripe
-                            columns.ConstantColumn(32);   // #
-                            columns.RelativeColumn();     // Type
-                            columns.RelativeColumn();     // Identifier
-                            columns.RelativeColumn();     // User
-                            columns.RelativeColumn();     // Purchase Date
-                        });
-
-                        // ── Column headers ────────────────────────────────
-                        table.Header(header =>
-                        {
-                            // Accent stripe header cell
-                            header.Cell()
-                                .Background(AccentBlue)
-                                .BorderBottom(1f).BorderColor(BorderOuter)
-                                .Container();
-
-                            string[] labels = { "#", "Type", "Identifier", "User", "Purchase Date" };
-                            foreach (var label in labels)
+                        pageCol.Item()
+                            .PaddingBottom(16)
+                            .Border(1f).BorderColor(BorderOuter)
+                            .Column(filterCard =>
                             {
-                                header.Cell()
-                                    .Element(HeaderCell)
-                                    .Text(label)
-                                    .FontSize(8)
-                                    .FontColor(AccentText)
-                                    .Bold();
-                            }
-                        });
+                                // Header row — accent stripe + label, matching the table style
+                                filterCard.Item()
+                                    .BorderBottom(1.5f).BorderColor(BorderOuter)
+                                    .Row(hRow =>
+                                    {
+                                        hRow.ConstantItem(4)
+                                            .Background(AccentBlue)
+                                            .Container();
 
-                        // ── Data rows ─────────────────────────────────────
-                        for (int i = 0; i < items.Count; i++)
-                        {
-                            var item   = items[i];
-                            var rowBg  = i % 2 == 0 ? RowEven : RowOdd;
-                            var isLast = i == items.Count - 1;
+                                        hRow.RelativeItem()
+                                            .Background(HeaderBg)
+                                            .PaddingVertical(8).PaddingHorizontal(10)
+                                            .Text("Applied Filters")
+                                            .FontSize(10)
+                                            .FontColor(AccentText)
+                                            .Bold();
+                                    });
 
-                            // Accent stripe — solid blue for every data row
-                            table.Cell()
-                                .RowSpan(2)
-                                .Background(AccentBlue)
-                                .BorderBottom(isLast ? 0 : 1f)
-                                .BorderColor("#1d4ed8")
-                                .Container();
-
-                            // Row number
-                            table.Cell()
-                                .RowSpan(2)
-                                .Element(c => NumberCell(c, rowBg, isLast))
-                                .AlignCenter()
-                                .AlignMiddle()
-                                .Text((i + 1).ToString())
-                                .FontSize(9)
-                                .FontColor(MutedText);
-
-                            // Data sub-row (spans remaining 4 cols)
-                            table.Cell()
-                                .ColumnSpan(4)
-                                .Background(rowBg)
-                                .BorderBottom(0.5f).BorderColor(BorderRow)
-                                .Row(row =>
-                                {
-                                    row.RelativeItem()
-                                        .Element(DataCell)
-                                        .Text(item.ItemType.ToString())
-                                        .FontSize(10);
-
-                                    row.RelativeItem()
-                                        .Element(DataCell)
-                                        .Text(item.Identifier)
-                                        .FontSize(10);
-
-                                    row.RelativeItem()
-                                        .Element(DataCell)
-                                        .Column(col =>
+                                // Filter rows
+                                filterCard.Item()
+                                    .PaddingVertical(8).PaddingHorizontal(14)
+                                    .Column(rows =>
+                                    {
+                                        // Item Types
+                                        rows.Item().PaddingBottom(5).Row(row =>
                                         {
-                                            col.Item()
-                                                .Text(string.IsNullOrWhiteSpace(item.UserName) ? "-" : item.UserName)
-                                                .FontSize(10);
-                                            if (!string.IsNullOrWhiteSpace(item.UserIdentifier))
-                                                col.Item()
-                                                    .Text(item.UserIdentifier)
+                                            row.ConstantItem(90)
+                                                .Text("Item Types")
+                                                .FontSize(8)
+                                                .FontColor(MutedText)
+                                                .Bold();
+
+                                            if (filters.ItemTypes is { Count: > 0 })
+                                                row.RelativeItem()
+                                                    .Text(string.Join(", ", filters.ItemTypes))
                                                     .FontSize(8)
+                                                    .FontColor(CommentText);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(8)
+                                                    .Italic()
                                                     .FontColor(MutedText);
                                         });
 
-                                    row.RelativeItem()
-                                        .Element(DataCell)
-                                        .Column(col =>
+                                        // Comment
+                                        rows.Item().PaddingBottom(5).Row(row =>
                                         {
-                                            col.Item()
-                                                .Text(item.PurchaseDate.ToString("yyyy-MM-dd"))
-                                                .FontSize(10);
-                                            col.Item()
-                                                .Text(item.PurchaseDate.ToString("HH:mm"))
+                                            row.ConstantItem(90)
+                                                .Text("Comment")
                                                 .FontSize(8)
-                                                .FontColor(MutedText);
-                                        });
-                                });
+                                                .FontColor(MutedText)
+                                                .Bold();
 
-                            // Comment sub-row
-                            table.Cell()
-                                .ColumnSpan(4)
-                                .Background(CommentBg)
-                                .BorderBottom(isLast ? 0 : 1f)
-                                .BorderColor(BorderRow)
-                                .PaddingVertical(4)
-                                .PaddingHorizontal(10)
-                                .Text(text =>
+                                            if (!string.IsNullOrWhiteSpace(filters.Comment))
+                                                row.RelativeItem()
+                                                    .Text(filters.Comment)
+                                                    .FontSize(8)
+                                                    .FontColor(CommentText);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(8)
+                                                    .Italic()
+                                                    .FontColor(MutedText);
+                                        });
+
+                                        // Users
+                                        rows.Item().Row(row =>
+                                        {
+                                            row.ConstantItem(90)
+                                                .Text("Users")
+                                                .FontSize(8)
+                                                .FontColor(MutedText)
+                                                .Bold();
+
+                                            if (selectedUsers is { Count: > 0 })
+                                                row.RelativeItem()
+                                                    .Text(string.Join(", ", selectedUsers
+                                                        .Select(u => $"{u.FirstName} {u.LastName}")))
+                                                    .FontSize(8)
+                                                    .FontColor(CommentText);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(8)
+                                                    .Italic()
+                                                    .FontColor(MutedText);
+                                        });
+                                    });
+                            });
+                    }
+
+                    // ── Empty state ───────────────────────────────────────
+                    if (items.Count == 0)
+                    {
+                        pageCol.Item()
+                            .Border(1f).BorderColor(BorderOuter)
+                            .Column(empty =>
+                            {
+                                empty.Item()
+                                    .Row(hRow =>
+                                    {
+                                        hRow.ConstantItem(4)
+                                            .Background(AccentBlue)
+                                            .Container();
+
+                                        hRow.RelativeItem()
+                                            .Background(HeaderBg)
+                                            .BorderBottom(1.5f).BorderColor(BorderOuter)
+                                            .PaddingVertical(8).PaddingHorizontal(10)
+                                            .Text("No Results")
+                                            .FontSize(10)
+                                            .FontColor(AccentText)
+                                            .Bold();
+                                    });
+
+                                empty.Item()
+                                    .PaddingVertical(24)
+                                    .AlignCenter()
+                                    .Column(msg =>
+                                    {
+                                        msg.Item()
+                                            .AlignCenter()
+                                            .Text("No items match the filters")
+                                            .FontSize(14)
+                                            .Bold()
+                                            .FontColor(CommentText);
+
+                                        msg.Item()
+                                            .AlignCenter()
+                                            .PaddingTop(4)
+                                            .Text("Try adjusting or removing some of the applied filters.")
+                                            .FontSize(9)
+                                            .Italic()
+                                            .FontColor(MutedText);
+                                    });
+                            });
+
+                        return;
+                    }
+
+                    // ── Table ─────────────────────────────────────────────
+                    pageCol.Item()
+                        .Border(1f).BorderColor(BorderOuter)
+                        .Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(4);
+                                columns.ConstantColumn(32);
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell()
+                                    .Background(AccentBlue)
+                                    .BorderBottom(1f).BorderColor(BorderOuter)
+                                    .Container();
+
+                                string[] labels = { "#", "Type", "Identifier", "User", "Purchase Date" };
+                                foreach (var label in labels)
                                 {
-                                    text.Span("Comment: ")
-                                        .Bold()
+                                    header.Cell()
+                                        .Element(HeaderCell)
+                                        .Text(label)
                                         .FontSize(8)
-                                        .FontColor(CommentText);
-                                    text.Span(string.IsNullOrWhiteSpace(item.Comment)
-                                            ? "No comment"
-                                            : item.Comment)
-                                        .Italic()
-                                        .FontSize(8)
-                                        .FontColor(CommentText);
-                                });
-                        }
-                    });
+                                        .FontColor(AccentText)
+                                        .Bold();
+                                }
+                            });
+
+                            for (int i = 0; i < items.Count; i++)
+                            {
+                                var item   = items[i];
+                                var rowBg  = i % 2 == 0 ? RowEven : RowOdd;
+                                var isLast = i == items.Count - 1;
+
+                                table.Cell()
+                                    .RowSpan(2)
+                                    .Background(AccentBlue)
+                                    .BorderBottom(isLast ? 0 : 1f)
+                                    .BorderColor("#1d4ed8")
+                                    .Container();
+
+                                table.Cell()
+                                    .RowSpan(2)
+                                    .Element(c => NumberCell(c, rowBg, isLast))
+                                    .AlignCenter()
+                                    .AlignMiddle()
+                                    .Text((i + 1).ToString())
+                                    .FontSize(9)
+                                    .FontColor(MutedText);
+
+                                table.Cell()
+                                    .ColumnSpan(4)
+                                    .Background(rowBg)
+                                    .BorderBottom(0.5f).BorderColor(BorderRow)
+                                    .Row(row =>
+                                    {
+                                        row.RelativeItem()
+                                            .Element(DataCell)
+                                            .Text(item.ItemType.ToString())
+                                            .FontSize(10);
+
+                                        row.RelativeItem()
+                                            .Element(DataCell)
+                                            .Text(item.Identifier)
+                                            .FontSize(10);
+
+                                        row.RelativeItem()
+                                            .Element(DataCell)
+                                            .Column(col =>
+                                            {
+                                                col.Item()
+                                                    .Text(string.IsNullOrWhiteSpace(item.UserName) ? "-" : item.UserName)
+                                                    .FontSize(10);
+                                                if (!string.IsNullOrWhiteSpace(item.UserIdentifier))
+                                                    col.Item()
+                                                        .Text(item.UserIdentifier)
+                                                        .FontSize(8)
+                                                        .FontColor(MutedText);
+                                            });
+
+                                        row.RelativeItem()
+                                            .Element(DataCell)
+                                            .Column(col =>
+                                            {
+                                                col.Item()
+                                                    .Text(item.PurchaseDate.ToString("yyyy-MM-dd"))
+                                                    .FontSize(10);
+                                                col.Item()
+                                                    .Text(item.PurchaseDate.ToString("HH:mm"))
+                                                    .FontSize(8)
+                                                    .FontColor(MutedText);
+                                            });
+                                    });
+
+                                table.Cell()
+                                    .ColumnSpan(4)
+                                    .Background(CommentBg)
+                                    .BorderBottom(isLast ? 0 : 1f)
+                                    .BorderColor(BorderRow)
+                                    .PaddingVertical(4)
+                                    .PaddingHorizontal(10)
+                                    .Text(text =>
+                                    {
+                                        text.Span("Comment: ")
+                                            .Bold()
+                                            .FontSize(8)
+                                            .FontColor(CommentText);
+                                        text.Span(string.IsNullOrWhiteSpace(item.Comment)
+                                                ? "No comment"
+                                                : item.Comment)
+                                            .Italic()
+                                            .FontSize(8)
+                                            .FontColor(CommentText);
+                                    });
+                            }
+                        });
+                });
 
                 // ── Footer ────────────────────────────────────────────────
                 page.Footer()
@@ -191,8 +342,6 @@ public class SimpleTemplate
 
         return document.GeneratePdf();
     }
-
-    // ── Style helpers ─────────────────────────────────────────────────────
 
     static IContainer HeaderCell(IContainer c) =>
         c.Background(HeaderBg)

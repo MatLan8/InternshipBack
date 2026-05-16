@@ -6,14 +6,6 @@ namespace InternshipBack.api.Controllers;
 
 public class ItemController : BaseController
 {
-    
-    [HttpPost("Create")]
-    public async Task<IActionResult> Create(CreateItemCommand command)
-    {
-        var result = await Mediator.Send(command);
-        return Ok(result);
-    }
-    
     [HttpGet("GetAllFiltered")]
     public async Task<IActionResult> GetAllFiltered([FromQuery] GetAllItemsFilteredQuery query)
     {

@@ -1,17 +1,21 @@
 ﻿using InternshipBack.Domain.Dtos;
 using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
 
 namespace InternshipBack.Core.Pdf.Templates;
 
 public class DetailedTemplate
 {
-    public static byte[] Generate(List<ItemDto> items)
+    public static byte[] Generate(List<ItemDto> items, ItemFilterDto filters, List<UserDto> selectedUsers)
     {
         var userGroups = items
             .GroupBy(i => new { i.UserName, i.UserIdentifier })
             .OrderBy(g => g.Key.UserName)
             .ToList();
+
+        var hasFilters =
+            (filters.ItemTypes is { Count: > 0 }) ||
+            !string.IsNullOrWhiteSpace(filters.Comment) ||
+            (filters.UserIds is { Count: > 0 });
 
         var document = Document.Create(container =>
         {
@@ -39,9 +43,129 @@ public class DetailedTemplate
                         .Container();
                 });
 
-                // ── One card per user ─────────────────────────────────────
                 page.Content().PaddingTop(20).Column(col =>
                 {
+                    // ── Filters block ─────────────────────────────────────
+                    if (hasFilters)
+                    {
+                        col.Item()
+                            .PaddingBottom(16)
+                            .Border(1f)
+                            .BorderColor("#e2e8f0")
+                            .Background("#f8fafc")
+                            .Column(filterCard =>
+                            {
+                                // Filter card header
+                                filterCard.Item()
+                                    .BorderBottom(1f)
+                                    .BorderColor("#e2e8f0")
+                                    .PaddingVertical(10)
+                                    .PaddingHorizontal(14)
+                                    .Text("Applied Filters")
+                                    .FontSize(15)
+                                    .Bold();
+
+                                // Filter rows
+                                filterCard.Item()
+                                    .PaddingVertical(10)
+                                    .PaddingHorizontal(14)
+                                    .Column(rows =>
+                                    {
+                                        // Item Types
+                                        rows.Item().PaddingBottom(6).Row(row =>
+                                        {
+                                            row.ConstantItem(100)
+                                                .Text("Item Types")
+                                                .FontSize(9)
+                                                .FontColor("#888888")
+                                                .Bold();
+
+                                            if (filters.ItemTypes is { Count: > 0 })
+                                                row.RelativeItem()
+                                                    .Text(string.Join(", ", filters.ItemTypes))
+                                                    .FontSize(9);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(9)
+                                                    .Italic()
+                                                    .FontColor("#aaaaaa");
+                                        });
+
+                                        // Comment
+                                        rows.Item().PaddingBottom(6).Row(row =>
+                                        {
+                                            row.ConstantItem(100)
+                                                .Text("Comment")
+                                                .FontSize(9)
+                                                .FontColor("#888888")
+                                                .Bold();
+
+                                            if (!string.IsNullOrWhiteSpace(filters.Comment))
+                                                row.RelativeItem()
+                                                    .Text(filters.Comment)
+                                                    .FontSize(9);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(9)
+                                                    .Italic()
+                                                    .FontColor("#aaaaaa");
+                                        });
+
+                                        // Users
+                                        rows.Item().Row(row =>
+                                        {
+                                            row.ConstantItem(100)
+                                                .Text("Users")
+                                                .FontSize(9)
+                                                .FontColor("#888888")
+                                                .Bold();
+
+                                            if (selectedUsers is { Count: > 0 })
+                                                row.RelativeItem()
+                                                    .Text(string.Join(", ", selectedUsers
+                                                        .Select(u => $"{u.FirstName} {u.LastName}")))
+                                                    .FontSize(9);
+                                            else
+                                                row.RelativeItem()
+                                                    .Text("No filter")
+                                                    .FontSize(9)
+                                                    .Italic()
+                                                    .FontColor("#aaaaaa");
+                                        });
+                                    });
+                            });
+                    }
+
+                    // ── Empty state ───────────────────────────────────────
+                    if (items.Count == 0)
+                    {
+                        col.Item()
+                            .AlignCenter()
+                            .PaddingTop(40)
+                            .Column(empty =>
+                            {
+                                empty.Item()
+                                    .AlignCenter()
+                                    .Text("No items match the filters")
+                                    .FontSize(16)
+                                    .Bold()
+                                    .FontColor("#888888");
+
+                                empty.Item()
+                                    .AlignCenter()
+                                    .PaddingTop(6)
+                                    .Text("Try adjusting or removing some of the applied filters.")
+                                    .FontSize(10)
+                                    .Italic()
+                                    .FontColor("#aaaaaa");
+                            });
+
+                        return;
+                    }
+
+                    // ── One card per user ─────────────────────────────────
                     foreach (var group in userGroups)
                     {
                         var userName       = string.IsNullOrWhiteSpace(group.Key.UserName)       ? "Unknown User" : group.Key.UserName;
@@ -50,12 +174,8 @@ public class DetailedTemplate
 
                         col.Item().PaddingBottom(16).Border(1.5f).BorderColor("#222222").Column(card =>
                         {
-                            // ── Anchor block: kept together on same page ──
-                            // Ensures the card header + column labels + first item
-                            // are never separated by a page break.
                             card.Item().ShowEntire().Column(anchor =>
                             {
-                                // Dark header bar with item count on the right
                                 anchor.Item()
                                     .Background("#2b2b2b")
                                     .PaddingVertical(12)
@@ -76,7 +196,6 @@ public class DetailedTemplate
                                                 .FontColor("#aaaaaa");
                                         });
 
-                                        // Item count — large and visible in the header
                                         hRow.AutoItem()
                                             .AlignMiddle()
                                             .Text($"{userItems.Count} item{(userItems.Count == 1 ? "" : "s")}")
@@ -85,7 +204,6 @@ public class DetailedTemplate
                                             .Bold();
                                     });
 
-                                // Column label row
                                 anchor.Item()
                                     .PaddingTop(10)
                                     .PaddingHorizontal(14)
@@ -98,7 +216,6 @@ public class DetailedTemplate
                                         row.RelativeItem(2).Text("COMMENT").FontSize(8).FontColor("#888888").Bold();
                                     });
 
-                                // Divider under column labels
                                 anchor.Item()
                                     .PaddingHorizontal(14)
                                     .PaddingTop(4)
@@ -107,7 +224,6 @@ public class DetailedTemplate
                                     .BorderColor("#dddddd")
                                     .Container();
 
-                                // First item row (anchored with the header)
                                 if (userItems.Count > 0)
                                 {
                                     anchor.Item()
@@ -118,7 +234,6 @@ public class DetailedTemplate
                                 }
                             });
 
-                            // ── Remaining items (can flow across pages) ───
                             for (int i = 1; i < userItems.Count; i++)
                             {
                                 var rowBackground = i % 2 == 0 ? "#ffffff" : "#f7f7f7";
@@ -137,7 +252,6 @@ public class DetailedTemplate
                                     .Row(row => RenderItemRow(row, userItems[i], i + 1));
                             }
 
-                            // Bottom breathing room
                             card.Item().Height(10);
                         });
                     }
