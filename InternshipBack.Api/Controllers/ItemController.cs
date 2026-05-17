@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using InternshipBack.Core.Queries.Item;
 
-namespace InternshipBack.api.Controllers;
+namespace InternshipBack.Api.Controllers;
 
 public class ItemController : BaseController
 {
@@ -28,11 +28,8 @@ public class ItemController : BaseController
         {
             Id = id
         });
-
-        if (!result)
-            return NotFound();
-
-        return Ok();
+        
+        return Ok(result);
     }
     
     [HttpPost("ExportPdf")]

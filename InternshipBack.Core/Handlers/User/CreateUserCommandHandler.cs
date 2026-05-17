@@ -1,4 +1,5 @@
-﻿using InternshipBack.Core.Commands.User;
+﻿using System.ComponentModel.DataAnnotations;
+using InternshipBack.Core.Commands.User;
 using InternshipBack.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,12 @@ public class CreateUserCommandHandler(InternshipBackDbContext context) : IReques
 
         if (request.FirstName.Length is < 3 or > 20)
         {
-            throw new Exception("First name has to be between 4 and 20 characters long");
+            throw new ValidationException("First name has to be between 3 and 20 characters long");
         }
         
         if (request.LastName.Length is < 3 or > 25)
         {
-            throw new Exception("Last name has to be between 4 and 25 characters long");
+            throw new ValidationException("Last name has to be between 3 and 25 characters long");
         }
         
         var lastIdentifier = await context.Users

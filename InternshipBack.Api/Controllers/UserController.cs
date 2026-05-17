@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using InternshipBack.Core.Queries.User;
 
-namespace InternshipBack.api.Controllers;
+namespace InternshipBack.Api.Controllers;
 
 public class UserController : BaseController
 {

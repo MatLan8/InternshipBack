@@ -1,4 +1,5 @@
-﻿using InternshipBack.Core.Commands.Item;
+﻿using System.ComponentModel.DataAnnotations;
+using InternshipBack.Core.Commands.Item;
 using InternshipBack.Domain.Types;
 using InternshipBack.Infrastructure;
 using MediatR;
@@ -14,24 +15,24 @@ public class CreateItemCommandHandler(InternshipBackDbContext context) : IReques
             .AnyAsync(u => u.Id == request.UserId, cancellationToken);
 
         if (!userExists)
-            throw new Exception("User not found");
+            throw new ValidationException("User not found");
 
-        if (request.PurchaseDate > DateTime.Now)
+        if (request.PurchaseDate > DateTime.UtcNow)
         {
-            throw new Exception($"Purchase date cannot be in the future");
+            throw new ValidationException($"Purchase date cannot be in the future");
         }
 
         if (!string.IsNullOrWhiteSpace(request.Comment))
         {
             if (request.Comment.Length > 150)
             {
-                throw new Exception($"Comment cannot exceed 150 characters");
+                throw new ValidationException($"Comment cannot exceed 150 characters");
             }
         }
         
         if (!Enum.IsDefined(typeof(ItemsEnum), request.ItemType))
         {
-            throw new Exception("Invalid item type");
+            throw new ValidationException("Invalid item type");
         }
         
         var lastIdentifier = await context.Items
