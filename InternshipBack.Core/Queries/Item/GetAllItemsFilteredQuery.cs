@@ -2,7 +2,7 @@
 using InternshipBack.Domain.Types;
 using MediatR;
 
-namespace InternshipBack.Core.Queries;
+namespace InternshipBack.Core.Queries.Item;
 
 public class GetAllItemsFilteredQuery : IRequest<List<ItemDto>>
 {

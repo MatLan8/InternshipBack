@@ -1,5 +1,5 @@
 ﻿using InternshipBack.Core.Pdf.Templates;
-using InternshipBack.Core.Queries;
+using InternshipBack.Core.Queries.Item;
 using InternshipBack.Core.Services;
 using InternshipBack.Domain.Dtos;
 using InternshipBack.Domain.Types;
@@ -8,7 +8,7 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace InternshipBack.Core.Handlers;
+namespace InternshipBack.Core.Handlers.Item;
 
 
 public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : IRequestHandler<ExportItemsToPdfQuery, byte[]>
@@ -24,7 +24,8 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
 
         var query = dbContext.Items
             .Include(i => i.AssignedUser)
-            .ApplyFilters(filters);
+            .ApplyFilters(filters)
+            .OrderBy(i => i.Identifier);
         
         var items = await query
             .Select(i => new ItemDto

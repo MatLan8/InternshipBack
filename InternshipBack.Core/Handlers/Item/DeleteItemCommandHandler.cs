@@ -1,10 +1,9 @@
-﻿using InternshipBack.Core.Commands;
+﻿using InternshipBack.Core.Commands.Item;
 using InternshipBack.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace InternshipBack.Core.Handlers;
-
+namespace InternshipBack.Core.Handlers.Item;
 
 
 public class DeleteItemCommandHandler(InternshipBackDbContext context) : IRequestHandler<DeleteItemCommand, bool>

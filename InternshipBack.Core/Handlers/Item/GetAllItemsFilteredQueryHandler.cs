@@ -1,11 +1,11 @@
-﻿using InternshipBack.Core.Queries;
+﻿using InternshipBack.Core.Queries.Item;
 using InternshipBack.Core.Services;
 using InternshipBack.Domain.Dtos;
 using InternshipBack.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace InternshipBack.Core.Handlers;
+namespace InternshipBack.Core.Handlers.Item;
 
 public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) : IRequestHandler<GetAllItemsFilteredQuery, List<ItemDto>>
 {
@@ -19,7 +19,8 @@ public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) 
         };
         var query = dbContext.Items
             .Include(i => i.AssignedUser)
-            .ApplyFilters(filters);
+            .ApplyFilters(filters)
+            .OrderByDescending(i => i.Identifier);
         
         return await query
             .Select(i => new ItemDto

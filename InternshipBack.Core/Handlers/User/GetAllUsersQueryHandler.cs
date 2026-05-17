@@ -1,10 +1,10 @@
-﻿using InternshipBack.Core.Queries;
+﻿using InternshipBack.Core.Queries.User;
 using InternshipBack.Domain.Dtos;
 using InternshipBack.Infrastructure;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace InternshipBack.Core.Handlers;
+namespace InternshipBack.Core.Handlers.User;
 
 public class GetAllUsersQueryHandler(InternshipBackDbContext dbContext) : IRequestHandler<GetAllUsersQuery, List<UserDto>>
 {

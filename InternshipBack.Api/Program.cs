@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using InternshipBack.Core.Queries;
+using InternshipBack.Core.Queries.User;
 using InternshipBack.Infrastructure;
 using InternshipBack.Infrastructure.Seed;
 using QuestPDF.Infrastructure;
