@@ -12,6 +12,7 @@ public class GetAllUsersQueryHandler(InternshipBackDbContext dbContext) : IReque
     {
         
         return await dbContext.Users
+            .AsNoTracking()
             .Select(u => new UserDto
             {
                 FirstName = u.FirstName,

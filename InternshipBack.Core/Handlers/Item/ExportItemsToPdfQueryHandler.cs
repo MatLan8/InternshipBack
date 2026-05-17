@@ -23,6 +23,7 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
         };
 
         var query = dbContext.Items
+            .AsNoTracking()
             .Include(i => i.AssignedUser)
             .ApplyFilters(filters)
             .OrderBy(i => i.Identifier);
@@ -41,6 +42,7 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
             .ToListAsync(cancellationToken);
         
         var selectedUsers = await dbContext.Users
+            .AsNoTracking()
             .Where(u => request.UserIds != null && request.UserIds.Contains(u.Id))
             .Select(u => new UserDto
             {
@@ -56,7 +58,7 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
         {
             ExportTemplateType.Simple => SimpleTemplate.Generate(items, filters, selectedUsers),
             ExportTemplateType.User => UserTemplate.Generate(items, filters, selectedUsers),
-            _ => throw new Exception("Invalid template")
+            _ => throw new ArgumentException("Invalid template")
         };
     }
 }

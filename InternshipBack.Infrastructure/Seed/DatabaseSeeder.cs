@@ -15,21 +15,21 @@ public static class DatabaseSeeder
         
         var users = new List<User>
         {
-            new() { FirstName = "Matas", LastName = "Jonaitis", Identifier = "USR-0001" },
-            new() { FirstName = "Ieva", LastName = "Petrauskaitė", Identifier = "USR-0002" },
-            new() { FirstName = "Tomas", LastName = "Kazlauskas", Identifier = "USR-0003" },
-            new() { FirstName = "Greta", LastName = "Vaitkutė", Identifier = "USR-0004" },
-            new() { FirstName = "Lukas", LastName = "Stankevičius", Identifier = "USR-0005" },
-            new() { FirstName = "Eglė", LastName = "Žemaitė", Identifier = "USR-0006" },
-            new() { FirstName = "Domantas", LastName = "Balčiūnas", Identifier = "USR-0007" },
-            new() { FirstName = "Karolina", LastName = "Paulauskaitė", Identifier = "USR-0008" },
-            new() { FirstName = "Paulius", LastName = "Rimkus", Identifier = "USR-0009" },
-            new() { FirstName = "Monika", LastName = "Urbonaitė", Identifier = "USR-0010" },
-            new() { FirstName = "Andrius", LastName = "Petraitis", Identifier = "USR-0011" },
-            new() { FirstName = "Laura", LastName = "Jankauskaitė", Identifier = "USR-0012" },
-            new() { FirstName = "Marius", LastName = "Sadauskas", Identifier = "USR-0013" },
-            new() { FirstName = "Agnė", LastName = "Kavaliauskaitė", Identifier = "USR-0014" },
-            new() { FirstName = "Rokas", LastName = "Valančius", Identifier = "USR-0015" }
+            new() { FirstName = "Matas", LastName = "Mataitis", Identifier = "USR-0001" },
+            new() { FirstName = "Ieva", LastName = "Ievaitė", Identifier = "USR-0002" },
+            new() { FirstName = "Tomas", LastName = "Tomauskas", Identifier = "USR-0003" },
+            new() { FirstName = "Greta", LastName = "Gretaitytė", Identifier = "USR-0004" },
+            new() { FirstName = "Lukas", LastName = "Lukavičius", Identifier = "USR-0005" },
+            new() { FirstName = "Eglė", LastName = "Eglaitė", Identifier = "USR-0006" },
+            new() { FirstName = "Domantas", LastName = "Domantaitis", Identifier = "USR-0007" },
+            new() { FirstName = "Karolina", LastName = "Karolaitė", Identifier = "USR-0008" },
+            new() { FirstName = "Paulius", LastName = "Paulauskas", Identifier = "USR-0009" },
+            new() { FirstName = "Monika", LastName = "Monikaitytė", Identifier = "USR-0010" },
+            new() { FirstName = "Andrius", LastName = "Andrauskas", Identifier = "USR-0011" },
+            new() { FirstName = "Laura", LastName = "Lauraitė", Identifier = "USR-0012" },
+            new() { FirstName = "Marius", LastName = "Mariauskas", Identifier = "USR-0013" },
+            new() { FirstName = "Agnė", LastName = "Agnaitienė", Identifier = "USR-0014" },
+            new() { FirstName = "Rokas", LastName = "Rokauskas", Identifier = "USR-0015" }
         };
 
         await context.Users.AddRangeAsync(users);

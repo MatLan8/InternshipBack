@@ -32,7 +32,7 @@ public class CreateItemCommandHandler(InternshipBackDbContext context) : IReques
         
         if (!Enum.IsDefined(typeof(ItemsEnum), request.ItemType))
         {
-            throw new ValidationException("Invalid item type");
+            throw new ArgumentException("Invalid item type");
         }
         
         var lastIdentifier = await context.Items

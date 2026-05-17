@@ -18,6 +18,7 @@ public class GetAllItemsFilteredQueryHandler(InternshipBackDbContext dbContext) 
             UserIds = request.UserIds,
         };
         var query = dbContext.Items
+            .AsNoTracking()
             .Include(i => i.AssignedUser)
             .ApplyFilters(filters)
             .OrderByDescending(i => i.Identifier);
