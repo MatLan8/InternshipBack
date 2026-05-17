@@ -3,5 +3,5 @@
 public enum ExportTemplateType
 {
     Simple,
-    Detailed
+    User
 }

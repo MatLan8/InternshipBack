@@ -6,7 +6,6 @@ namespace InternshipBack.Core.Pdf.Templates;
 
 public class SimpleTemplate
 {
-    // ── Palette — light, minimal, accent-driven ───────────────────────────
     const string AccentBlue  = "#2563eb";
     const string HeaderBg    = "#eff6ff";
     const string RowEven     = "#ffffff";
@@ -35,7 +34,7 @@ public class SimpleTemplate
                 page.Header().Column(col =>
                 {
                     col.Item()
-                        .Text("Simple Inventory Export")
+                        .Text("Inventory Snapshot Report")
                         .FontSize(22)
                         .Bold();
 
@@ -61,7 +60,6 @@ public class SimpleTemplate
                             .Border(1f).BorderColor(BorderOuter)
                             .Column(filterCard =>
                             {
-                                // Header row — accent stripe + label, matching the table style
                                 filterCard.Item()
                                     .BorderBottom(1.5f).BorderColor(BorderOuter)
                                     .Row(hRow =>
@@ -78,13 +76,11 @@ public class SimpleTemplate
                                             .FontColor(AccentText)
                                             .Bold();
                                     });
-
-                                // Filter rows
+                                
                                 filterCard.Item()
                                     .PaddingVertical(8).PaddingHorizontal(14)
                                     .Column(rows =>
                                     {
-                                        // Item Types
                                         rows.Item().PaddingBottom(5).Row(row =>
                                         {
                                             row.ConstantItem(90)
@@ -105,8 +101,7 @@ public class SimpleTemplate
                                                     .Italic()
                                                     .FontColor(MutedText);
                                         });
-
-                                        // Comment
+                                        
                                         rows.Item().PaddingBottom(5).Row(row =>
                                         {
                                             row.ConstantItem(90)
@@ -127,8 +122,7 @@ public class SimpleTemplate
                                                     .Italic()
                                                     .FontColor(MutedText);
                                         });
-
-                                        // Users
+                                        
                                         rows.Item().Row(row =>
                                         {
                                             row.ConstantItem(90)

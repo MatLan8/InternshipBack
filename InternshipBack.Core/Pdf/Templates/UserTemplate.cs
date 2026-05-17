@@ -3,7 +3,7 @@ using QuestPDF.Fluent;
 
 namespace InternshipBack.Core.Pdf.Templates;
 
-public class DetailedTemplate
+public class UserTemplate
 {
     public static byte[] Generate(List<ItemDto> items, ItemFilterDto filters, List<UserDto> selectedUsers)
     {
@@ -27,7 +27,7 @@ public class DetailedTemplate
                 page.Header().Column(col =>
                 {
                     col.Item()
-                        .Text("Inventory Asset Report")
+                        .Text("Users Inventory Report")
                         .FontSize(22)
                         .Bold();
 
@@ -55,7 +55,6 @@ public class DetailedTemplate
                             .Background("#f8fafc")
                             .Column(filterCard =>
                             {
-                                // Filter card header
                                 filterCard.Item()
                                     .BorderBottom(1f)
                                     .BorderColor("#e2e8f0")
@@ -64,14 +63,12 @@ public class DetailedTemplate
                                     .Text("Applied Filters")
                                     .FontSize(15)
                                     .Bold();
-
-                                // Filter rows
+                                
                                 filterCard.Item()
                                     .PaddingVertical(10)
                                     .PaddingHorizontal(14)
                                     .Column(rows =>
                                     {
-                                        // Item Types
                                         rows.Item().PaddingBottom(6).Row(row =>
                                         {
                                             row.ConstantItem(100)
@@ -91,8 +88,7 @@ public class DetailedTemplate
                                                     .Italic()
                                                     .FontColor("#aaaaaa");
                                         });
-
-                                        // Comment
+                                        
                                         rows.Item().PaddingBottom(6).Row(row =>
                                         {
                                             row.ConstantItem(100)
@@ -112,8 +108,7 @@ public class DetailedTemplate
                                                     .Italic()
                                                     .FontColor("#aaaaaa");
                                         });
-
-                                        // Users
+                                        
                                         rows.Item().Row(row =>
                                         {
                                             row.ConstantItem(100)
@@ -165,7 +160,7 @@ public class DetailedTemplate
                         return;
                     }
 
-                    // ── One card per user ─────────────────────────────────
+                    // ── Users cards ─────────────────────────────────
                     foreach (var group in userGroups)
                     {
                         var userName       = string.IsNullOrWhiteSpace(group.Key.UserName)       ? "Unknown User" : group.Key.UserName;

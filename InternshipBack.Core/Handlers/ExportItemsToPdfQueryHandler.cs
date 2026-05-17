@@ -54,7 +54,7 @@ public class ExportItemsToPdfQueryHandler(InternshipBackDbContext dbContext) : I
         return request.TemplateType switch
         {
             ExportTemplateType.Simple => SimpleTemplate.Generate(items, filters, selectedUsers),
-            ExportTemplateType.Detailed => DetailedTemplate.Generate(items, filters, selectedUsers),
+            ExportTemplateType.User => UserTemplate.Generate(items, filters, selectedUsers),
             _ => throw new Exception("Invalid template")
         };
     }
